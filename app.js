@@ -10,7 +10,7 @@ GAME FUNCTION:
 //Game values
 let min=1,
     max=10,
-    winningNum=2,
+    winningNum=getRandomNum(min,max),
     guessesLeft=3;
 
 //UI elements
@@ -25,6 +25,13 @@ const game = document.querySelector('#game'),
 minNum.textContent=min;
 maxNum.textContent=max;
 
+//Play again event listener
+game.addEventListener('mousedown',function(e){
+    if(e.target.className==='play-again'){
+        window.location.reload();
+    }
+});
+
 //Listen for guess
 guessBtn.addEventListener('click',function(){
     let guess = parseInt(guessInput.value);
@@ -36,15 +43,50 @@ guessBtn.addEventListener('click',function(){
 
     //Check if won
     if(guess===winningNum){
-        //diable input
-        guessInput.disabled=true;
-        //Change border color
-        guessInput.style.borderColor='green';
-        //Set message
-        setMessage(`${winningNum} is correct, YOU WIN!`,'green')
+        //Game over-won
+        gameOver(true,`${winningNum} is correct, YOU WIN!`);
+    }else{
+        //Wrong number
+        guessesLeft-=1;
+        
+        if(guessesLeft===0){
+            //Game Over-lost
+            gameOver(false,`Game Over, YOU LOST!, the correct number was ${winningNum}`);
+        }else{
+            //Game continues-answer wrong
+
+            //Change border color
+            guessInput.style.borderColor="red";
+
+            //Clear input
+            guessInput.value='';
+
+            //Tell user its the wrong number
+            setMessage(`${guess} is not correct, ${guessesLeft} guesses left`,'red');
+        }
     }
 });
 
+//Game over
+function gameOver(won,msg){
+    let color;
+    won===true ? color='green' : color='red';
+    //diable input
+    guessInput.disabled=true;
+    //Change border color
+    guessInput.style.borderColor=color;
+    //Set message
+    setMessage(msg,color);
+
+    //Play again
+    guessBtn.value='Play Again';
+    guessBtn.className+='play-again';
+};
+
+//get winning number
+function getRandomNum(min,max){
+    return Math.floor(Math.random()*(max-min+1)+min);
+};
 
 //Set Message
 function setMessage(msg, color){
